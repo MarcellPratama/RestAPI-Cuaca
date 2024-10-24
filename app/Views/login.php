@@ -38,7 +38,7 @@
             <button type="submit" class="btn btn-primary">Masuk</button>
             <div class="mt-3">
                 <span class="span-text">Belum punya akun?</span>
-                <a href="#" class="register-link">Daftar sekarang</a>
+                <a href="/pendaftaran" class="register-link">Daftar sekarang</a>
             </div>
         </form>
     </div>
