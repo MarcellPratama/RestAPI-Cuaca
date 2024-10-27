@@ -1,0 +1,47 @@
+body {
+  background-color: #006ba3;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+.container {
+  max-width: 800px;
+}
+.card {
+  background-color: #519dc2;
+  border: none;
+  border-radius: 15px;
+}
+.card-header, .card-footer {
+  background-color: transparent;
+}
+
+#icon-ramalan{
+  font-size: 5rem;
+}
+
+.location {
+  font-size: 5rem;
+}
+.temperature {
+  font-size: 3rem;
+  font-weight: bold;
+}
+.icon-large {
+  font-size: 10rem;
+}
+.forecast {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.forecast-day {
+  text-align: center;
+}
+.forecast-day .icon {
+  font-size: 2rem;
+}
+.summary-card {
+  padding: 1rem;
+  background-color: #3f87a2;
+  border-radius: 15px;
+}
