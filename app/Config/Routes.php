@@ -10,3 +10,4 @@ $routes->get('/login', 'Auth::Login');
 $routes->get('/pendaftaran', 'Auth::Register');
 $routes->get('/home', 'HomeController::index');
 $routes->get('/weather', 'WeatherController::index');
+$routes->post('/cariKode', 'WeatherController::cariKodeWilayah');
