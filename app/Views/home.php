@@ -164,12 +164,7 @@
       </div>
     </div>
 
-
-
-
-
-
-
+    
     <div class="text-center mt-3">
       <small>Sumber Data diperoleh dari Badan Meteorologi, Klimatologi dan Geofisika</small>
     </div>
