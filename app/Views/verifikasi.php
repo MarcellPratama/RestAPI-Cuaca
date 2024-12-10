@@ -19,17 +19,43 @@
         <h1 class="text-header">VERIFIKASI</h1>
         <p class="span-text2">Anda mendapatkan OTP melalui WhatsApp</p>
 
-        <form action="">
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+        <?php endif; ?>
+        
+        <form method="post" action="/verify-otp">
+            <?= csrf_field() ?>
             <div class="d-flex justify-content-center">
-                <input type="password" class="form-control mt-5 mb-4" placeholder="Kode OTP" required>
+                <input type="password" class="form-control mt-5 mb-4" name="otp" placeholder="Kode OTP" required>
             </div>
             <button type="submit" class="btn btn-primary">Verifikasi</button>
             <div class="mt-3">
                 <span class="span-text">Tidak menerima OTP verifikasi?</span>
-                <a href="#" class="resend-link">Kirim ulang lagi</a>
+                <a id="resend-link" href="/resend-otp" class="resend-link" style="pointer-events: none; color: gray;">Kirim ulang lagi dalam <span id="timer">30</span> detik</a>
             </div>
         </form>
     </div>
+
+    <script>
+        // Hitung mundur timer
+        let countdown = 30; // Detik
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resend-link');
+
+        const interval = setInterval(() => {
+            countdown--;
+            timerElement.textContent = countdown;
+
+            // Aktifkan link jika timer selesai
+            if (countdown <= 0) {
+                clearInterval(interval);
+                resendLink.style.pointerEvents = 'auto';
+                resendLink.style.color = 'blue';
+                resendLink.textContent = 'Kirim ulang lagi';
+            }
+        }, 1000);
+    </script>
 </body>
+
 
 </html>

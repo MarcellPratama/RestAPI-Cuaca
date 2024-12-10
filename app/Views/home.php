@@ -19,7 +19,7 @@
       <div>
         <span>Welcome, Anselmus Erik!</span>
         <span class="mx-3"><i class="bi bi-bell"></i></span>
-        <span><i class="bi bi-box-arrow-right"></i></span>
+        <span><a href="/logout"><i class="bi bi-box-arrow-right"></i></a></span>
       </div>
     </div>
 
