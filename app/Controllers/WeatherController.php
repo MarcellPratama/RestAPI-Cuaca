@@ -78,4 +78,11 @@ class WeatherController extends BaseController
             ]);
         }
     }
+    // Di controller
+    public function updateNotificationStatus()
+    {
+        $status = $this->request->getPost('status');
+        session()->set('notifikasiAktif', $status);
+        return json_encode(['status' => 'success']);
+    }
 }

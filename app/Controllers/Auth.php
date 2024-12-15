@@ -122,7 +122,7 @@ class Auth extends BaseController
 
         $otp = rand(100000, 999999);
 
-        
+
 
         // Hapus OTP lama dan simpan OTP baru
         $this->otpModel->where('nomor', $tempUser['nomor'])->delete();
