@@ -30,7 +30,9 @@ class Auth extends BaseController
         // Cari pengguna berdasarkan username
         $user = $this->penggunaModel->find($username);
 
-        var_dump($user);
+        // dd($user);
+
+        // dd($user);
         if ($user) {
             // Verifikasi password
             if (password_verify($password, $user['password'])) {
@@ -68,11 +70,11 @@ class Auth extends BaseController
             'otp'   => $otp,
             'waktu' => time(),
         ]);
-
+        
         // Kirim OTP
         $message = "*$otp* adalah kode OTP Anda. Demi keamanan jangan bagikan kode ini.";
         $this->sendOtp($data['nomor'], $message);
-
+        
         // Simpan data sementara untuk proses verifikasi
         session()->set('temp_user', [
             'username' => $data['username'],
@@ -88,17 +90,17 @@ class Auth extends BaseController
         $otp = $this->request->getPost('otp');
         $tempUser = session()->get('temp_user');
 
-        echo $tempUser['nomor'];
-        var_dump($tempUser['nomor']);
-
+        
         $otpData = $this->otpModel->where([
             'nomor' => $tempUser['nomor'],
             'otp'   => $otp,
-        ])->first();
-
+            ])->first();
+            
+            // dd($tempUser);
         if ($otpData && (time() - $otpData['waktu']) <= 30) {
             // Simpan pengguna
             $this->penggunaModel->insert($tempUser);
+
 
             // Hapus sesi sementara
             session()->remove('temp_user');
