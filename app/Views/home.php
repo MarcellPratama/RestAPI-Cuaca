@@ -51,6 +51,18 @@
 
 
 <body>
+
+  <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000" style="position: fixed; top: 20px; right: 20px; z-index: 3;">
+    <div class="toast-header bg-dark d-flex align-items-center justify-content-between ">
+      <strong class="mr-auto text-danger">Error</strong>
+      <button type="button" class="ml-5 mb-1 close bg-dark" style="border: none; color: white; " data-dismiss="toast" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="toast-body bg-dark" id="errorToastBody">
+    </div>
+  </div>
+
   <div id="overlay"></div>
 
   <div id="spinner" class="spinner-border" role="status">
@@ -169,18 +181,24 @@
 
   <script>
     $(document).ready(function() {
+      var isEmpty = true;
+
       $('#cariKode').on('submit', function(e) {
-        $("#spinner, #overlay").show();
-
+        
         e.preventDefault();
-
+        
         var wilayah = $('#wilayah').val();
-
-        if (!wilayah) {
-          $('#hasil').text('Nama wilayah tidak boleh kosong.');
-          return;
+        
+        if (wilayah) {
+          isEmpty = false;
         }
-
+        
+        if (isEmpty) {
+          $('#errorToastBody').text('Harap isi semua field sebelum mengirim data.');
+          $('#errorToast').toast('show');
+        }
+        
+        $("#spinner, #overlay").show();
         $.ajax({
           url: '\cariKode',
           type: 'POST',
@@ -189,7 +207,7 @@
           },
           dataType: 'json',
           success: function(response) {
-            console.log(response);
+            console.log(response.message);
 
             $.ajax({
               url: 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=' + response.message,
@@ -270,11 +288,12 @@
               },
               complete: function() {
                 $("#spinner, #overlay").hide();
-                $('#wilayah').val(' ')
+                $('#wilayah').val('')
 
               },
               error: function(xhr, status, error) {
                 console.error("API Error: " + error);
+
               }
             });
           },
