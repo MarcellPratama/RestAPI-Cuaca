@@ -15,16 +15,19 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #3f87a2, #2c3e50);
       color: white;
-      height: 100vh;
-      overflow: hidden;
       margin: 0;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      min-height: 100vh;
+      overflow-y: auto;
     }
 
     .container {
-      max-height: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
     }
 
     .card {
@@ -32,6 +35,12 @@
       border: none;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
     .card-header {
@@ -52,6 +61,7 @@
       background-color: #00aaff;
       border: none;
       border-radius: 10px;
+      transition: background-color 0.3s ease;
     }
 
     #search:hover {
@@ -64,21 +74,27 @@
     }
 
     .location {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 700;
     }
 
     .temperature {
-      font-size: 3rem;
+      font-size: 4rem;
       font-weight: 500;
     }
 
     .icon-large {
-      font-size: 3rem;
+      font-size: 4rem;
+      animation: bounce 2s infinite;
     }
 
-    .card .text-start {
-      font-size: 0.9rem;
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
     }
 
     #notificationBell {
@@ -101,20 +117,66 @@
       border-radius: 50%;
     }
 
-    .modal-header,
-    .modal-body {
-      background: rgba(255, 255, 255, 0.1);
+    /* New Design for User Section */
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 10px 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .modal-footer .btn-primary {
-      background-color: #00aaff;
-      border: none;
+    .user-section i {
+      font-size: 1.5rem;
+      color: #00d9ff;
+    }
+
+    .user-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .user-text span {
+      font-size: 1rem;
+    }
+
+    .user-text .welcome {
+      font-weight: 500;
+      color: #00e0ff;
     }
 
     footer {
-      margin-top: 10px;
       text-align: center;
       font-size: 0.8rem;
+      margin-top: auto;
+      padding: 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .location {
+        font-size: 2rem;
+      }
+
+      .temperature {
+        font-size: 3rem;
+      }
+
+      .icon-large {
+        font-size: 3rem;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        overflow-y: auto;
+      }
     }
   </style>
 </head>
@@ -128,19 +190,28 @@
           <i class="bi bi-search"></i>
         </button>
       </form>
-      <div>
-        <span>Selamat Datang, <?= session()->get('username'); ?>!</span>
-        <span class="mx-3" id="notificationBell">
+      <!-- Updated User Section -->
+      <div class="user-section">
+        <i class="bi bi-person-circle"></i>
+        <div class="user-text">
+          <span class="welcome">Selamat Datang!</span>
+          <span><?= session()->get('username'); ?></span>
+        </div>
+        <div id="notificationBell" class="ms-2">
           <i class="bi bi-bell"></i>
-        </span>
-        <span><a href="/logout" class="text-light"><i class="bi bi-box-arrow-right"></i></a></span>
+        </div>
+        <div class="ms-2">
+          <a href="/logout" class="text-light">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
       </div>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-3 flex-grow-1">
       <!-- Weather Overview -->
-      <div class="col-lg-8">
-        <div class="card p-4">
+      <div class="col-lg-8 d-flex flex-column">
+        <div class="card p-4 flex-grow-1">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h1 id="Daerah" class="location">Yogyakarta</h1>
@@ -151,7 +222,7 @@
         </div>
 
         <!-- Forecast -->
-        <div class="card mt-3">
+        <div class="card mt-3 flex-grow-1">
           <div class="card-body">
             <div class="forecast-wrapper d-flex gap-3">
               <div id="forecast-container" class="forecast"></div>
@@ -160,7 +231,7 @@
         </div>
 
         <!-- Weather Details -->
-        <div class="card mt-3">
+        <div class="card mt-3 flex-grow-1">
           <div class="card-body">
             <div class="row text-center text-light">
               <div class="col-md-6 mb-3 d-flex align-items-center">
@@ -198,7 +269,7 @@
 
       <!-- 3-Day Forecast -->
       <div class="col-lg-4">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-header text-center">
             <h5>Ramalan Cuaca 3 Hari</h5>
           </div>
