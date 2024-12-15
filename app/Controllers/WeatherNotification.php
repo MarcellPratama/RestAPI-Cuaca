@@ -90,4 +90,12 @@ class WeatherNotification extends Controller
             log_message('error', 'Error mengirim pesan: ' . $e->getMessage());
         }
     }
+
+    // Di controller
+    public function updateNotificationStatus()
+    {
+        $status = $this->request->getPost('status');
+        session()->set('notifikasiAktif', $status);
+        return json_encode(['status' => 'success']);
+    }
 }
