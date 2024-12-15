@@ -19,4 +19,6 @@ $routes->get('/login', 'Auth::Login');
 $routes->get('/pendaftaran', 'Auth::Register');
 $routes->get('/home', 'HomeController::index');
 $routes->get('/weather', 'WeatherController::index');
-$routes->post('/cariKode', 'WeatherController::cariKodeWilayah');
+$routes->post('/api/cariKode', 'WeatherController::cariKodeWilayah');
+$routes->get('/api/cuaca/(:segment)', 'WeatherController::getWeatherByKodeWilayah/$1');
+$routes->post('/sendNotification', 'NotificationController::sendNotification');

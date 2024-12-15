@@ -44,6 +44,54 @@
     .forecast-day img {
       max-width: 40px;
     }
+
+    #notificationBell {
+      z-index: 1061;
+      /* pastikan lebih tinggi dari modal atau overlay */
+    }
+
+    #notificationBell {
+      position: relative;
+    }
+
+    #notificationBell.active i {
+      color: #ff5733;
+      /* Warna untuk menunjukkan notifikasi aktif */
+    }
+
+    #notificationBell i {
+      font-size: 1.5rem;
+    }
+
+    #notificationBell.active::after {
+      content: "";
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+    }
+
+    .modal-backdrop {
+      z-index: 1050;
+    }
+
+    .modal {
+      z-index: 1060;
+    }
+
+    .modal-body {
+      color: #4CAF50;
+    }
+
+    .alert {
+      color: #fff;
+      /* Warna teks putih */
+      background-color: #28a745;
+      /* Latar belakang hijau */
+    }
   </style>
 
 </head>
@@ -51,18 +99,6 @@
 
 
 <body>
-
-  <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000" style="position: fixed; top: 20px; right: 20px; z-index: 3;">
-    <div class="toast-header bg-dark d-flex align-items-center justify-content-between ">
-      <strong class="mr-auto text-danger">Error</strong>
-      <button type="button" class="ml-5 mb-1 close bg-dark" style="border: none; color: white; " data-dismiss="toast" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="toast-body bg-dark" id="errorToastBody">
-    </div>
-  </div>
-
   <div id="overlay"></div>
 
   <div id="spinner" class="spinner-border" role="status">
@@ -77,11 +113,41 @@
       </form>
 
       <div>
-        <span>Welcome, Anselmus Erik!</span>
-        <span class="mx-3"><i class="bi bi-bell"></i></span>
+        <span>Selamat Datang, <?= session()->get('username'); ?>!</span>
+        <span class="mx-3" id="notificationBell" style="cursor: pointer;">
+          <i class="bi bi-bell" id="bellIcon"></i> <!-- Ikon lonceng -->
+        </span>
+
         <span><a href="/logout"><i class="bi bi-box-arrow-right"></i></a></span>
       </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="notificationModalLabel">Konfirmasi Notifikasi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modalText" class="text-dark">
+            Apakah Anda ingin menerima notifikasi cuaca setiap hari melalui WhatsApp?
+            Centang untuk YA dan Kosongkan untuk TIDAK
+          </div>
+          <div class="mb-3">
+            <!-- Toggle Switch untuk Menyalakan/Mematikan Notifikasi -->
+            <label for="notificationToggle" class="form-label">Aktifkan Notifikasi</label>
+            <input type="checkbox" class="form-check-input" id="notificationToggle">
+            <small class="form-text text-muted">Centang / Kosongkan</small>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            <button type="button" class="btn btn-primary" id="confirmNotification">Konfirmasi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
 
     <div class="row mt-3">
@@ -163,7 +229,7 @@
 
     </div>
 
-    
+
     <div class="text-center mt-3">
       <small>Sumber Data diperoleh dari Badan Meteorologi, Klimatologi dan Geofisika</small>
     </div>
@@ -176,196 +242,149 @@
 
   <script>
     $(document).ready(function() {
-      var isEmpty = true;
+      var kodeWilayah = '34.04.07.2002';
+      var isNotificationActive = false; // Status notifikasi (aktif atau nonaktif)
 
-      $('#cariKode').on('submit', function(e) {
-        
-        e.preventDefault();
-        
-        var wilayah = $('#wilayah').val();
-        
-        if (wilayah) {
-          isEmpty = false;
+      // Event listener untuk klik pada ikon lonceng
+      $('#notificationBell').click(function() {
+        // Toggle status notifikasi
+        isNotificationActive = !isNotificationActive;
+
+        // Ubah kelas untuk menampilkan status aktif/nonaktif
+        $(this).toggleClass('active');
+
+        // Tampilkan pesan di konsol
+        if (isNotificationActive) {
+          console.log("Notifikasi diaktifkan.");
+          kirimCuaca();
+        } else {
+          console.log("Notifikasi dimatikan.");
         }
-        
-        if (isEmpty) {
-          $('#errorToastBody').text('Harap isi semua field sebelum mengirim data.');
-          $('#errorToast').toast('show');
-        }
-        
-        $("#spinner, #overlay").show();
-        $.ajax({
-          url: '\cariKode',
-          type: 'POST',
-          data: {
-            wilayah: wilayah
-          },
-          dataType: 'json',
-          success: function(response) {
-            console.log(response.message);
-
-            $.ajax({
-              url: 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=' + response.message,
-              type: 'GET',
-              dataType: 'json',
-              success: function(response) {
-                console.log(response);
-                var location = response.lokasi.desa;
-                var weatherData = response.data[0].cuaca[0][0];
-
-                console.log(weatherData);
-                $('#Daerah').text(location);
-                $('#suhu').html(weatherData.t + '&deg;');
-                $('#iconUtama').html('<img src="' + weatherData.image + '" alt="Cuaca" class="img-fluid">');
-                $('#temp').html(weatherData.t + '&deg;');
-                $('#kelembapan').html(weatherData.hu + '%');
-                $('#kecAngin').html(weatherData.ws + ' Km/jam');
-                $('#jarak').html(weatherData.vs_text);
-
-                // memasukan data prediksi per 3 jam
-                var forecastContainer = $('#forecast-container');
-                forecastContainer.empty();
-
-                console.log(weatherData.local_datetime.split(' ')[0]);
-                var today = new Date().toISOString().split('T')[0];
-
-
-                for (let index = 0; index < response.data[0].cuaca[0].length; index++) {
-                  if (response.data[0].cuaca[0][index].local_datetime.split(' ')[0] === today) {
-                    console.log(index);
-                    var waktu = response.data[0].cuaca[0][index].local_datetime.split(' ')[1];
-                    var forecastElement = `
-                      <div class="forecast-day text-center mx-2">
-                        <div>${waktu.split(':').slice(0,2).join(':')}</div>
-                        <div class="icon text-warning">
-                          <img src="${response.data[0].cuaca[0][index].image}" alt="Cuaca" style="width: 24px;">
-                        </div>
-                        <div>${response.data[0].cuaca[0][index].t}&deg;</div>
-                      </div>
-                      <div class="border-start border-white" style="height: 80px; width: 2px; opacity: 0.5;"></div>
-                    `;
-                    forecastContainer.append(forecastElement);
-                  }
-                }
-                forecastContainer.find('.border-start:last').remove();
-
-                // masukan data ke prediksi 3 hari 
-
-                var ramalanContainer = $('#ramalan');
-                ramalanContainer.empty();
-
-                console.log(response.data[0].cuaca.length);
-
-                for (let index = 1; index < response.data[0].cuaca.length; index++) {
-                  // console.log(index);
-                  var dataRamalan = response.data[0].cuaca[index][0];
-                  var hari = new Date(dataRamalan.local_datetime.split(' ')[0]).toLocaleDateString('id-ID', {
-                    weekday: 'long'
-                  });
-
-                  var ramalanHTML = `
-                    <div class="row">
-                      <div class="d-flex justify-content-center align-items-center gap-3">
-                        <div>${hari}</div>
-                        <div class="icon text-warning">
-                          <img src="${dataRamalan.image}" alt="Cuaca" style="width: 100px;">
-                        </div>
-                        <div>${dataRamalan.weather_desc}</div>
-                      </div>
-                    </div>
-                    <div class="border-top border-white my-2" style="height: 2px;"></div>
-                  `;
-                  ramalanContainer.append(ramalanHTML);
-                }
-                ramalanContainer.find('.border-top:last').remove();
-
-
-              },
-              complete: function() {
-                $("#spinner, #overlay").hide();
-                $('#wilayah').val('')
-
-              },
-              error: function(xhr, status, error) {
-                console.error("API Error: " + error);
-
-              }
-            });
-          },
-        });
-
       });
 
+      function kirimCuaca() {
+        $.ajax({
+          url: 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=' + kodeWilayah,
+          type: 'GET',
+          dataType: 'json',
+          success: function(response) {
+            var location = response.lokasi.desa;
+            var weatherData = response.data[0].cuaca[0][0];
+
+            // format pesan cuaca
+            var message = `Cuaca Hari Ini di ${location}:\n`;
+            message += `Suhu: ${weatherData.t}°\n`;
+            message += `Kelembapan: ${weatherData.hu}%\n`;
+            message += `Kecepatan Angin: ${weatherData.ws} km/jam\n`;
+            message += `Deskripsi Cuaca: ${weatherData.weather_desc}\n`;
+            message += `Visibilitas: ${weatherData.vs_text}\n\n`;
+
+            // Prediksi per 3 jam
+            message += "Prediksi Cuaca Per 3 Jam:\n";
+            var forecastData = response.data[0].cuaca[0];
+            for (let index = 0; index < forecastData.length; index++) {
+              var waktu = forecastData[index].local_datetime.split(' ')[1];
+              message += `${waktu.split(':').slice(0, 2).join(':')} - ${forecastData[index].t}°\n`;
+            }
+
+            // Prediksi 3 Hari
+            message += "\nRamalan Cuaca 3 Hari Ke Depan:\n";
+            var ramalanData = response.data[0].cuaca;
+            for (let index = 1; index < ramalanData.length; index++) {
+              var dataRamalan = ramalanData[index][0];
+              var hari = new Date(dataRamalan.local_datetime.split(' ')[0]).toLocaleDateString('id-ID', {
+                weekday: 'long'
+              });
+              message += `${hari}: ${dataRamalan.weather_desc}\n`;
+            }
+
+            // Ambil nomor dari session dan kirim notifikasi
+            var nomorPengguna = '<?= session()->get('nomor'); ?>'; // Mengambil nomor pengguna dari session PHP
+            sendWeatherNotification(nomorPengguna, message); // Kirim pesan ke nomor pengguna
+          },
+          error: function(xhr, status, error) {
+            console.error("API Error: " + error);
+          }
+        });
+      }
+
+      function sendWeatherNotification(nomor, message) {
+        $.ajax({
+          url: 'https://api.fonnte.com/send',
+          type: 'POST',
+          data: {
+            target: nomor,
+            message: message,
+            countryCode: '62' // Kode negara untuk Indonesia
+          },
+          headers: {
+            'Authorization': 'bmvrY2R33YNkp3MKWwrM' // Ganti dengan token API Anda
+          },
+          success: function(response) {
+            console.log("Pesan terkirim:", response);
+          },
+          error: function(xhr, status, error) {
+            console.error("Error mengirim pesan:", error);
+          }
+        });
+      }
     });
 
-
-
     $(document).ready(function() {
-      var kodeWilayah = '34.04.07.2002';
+      var defaultKodeWilayah = '34.04.07.2002';
 
-      $.ajax({
-        url: 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=' + kodeWilayah,
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-          console.log(response);
-          var location = response.lokasi.desa;
-          var weatherData = response.data[0].cuaca[0][0];
+      function fetchWeatherData(kodeWilayah) {
+        $("#spinner, #overlay").show();
 
-          console.log(weatherData);
+        $.ajax({
+          url: '/api/cuaca/' + kodeWilayah,
+          type: 'GET',
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              var data = response.data;
+              var location = data.lokasi.desa;
+              var weatherData = data.data[0].cuaca[0][0];
 
-          // data pertama di masukan
-          $('#Daerah').text(location);
-          $('#suhu').html(weatherData.t + '&deg;');
-          $('#iconUtama').html('<img src="' + weatherData.image + '" alt="Cuaca" class="img-fluid">');
-          $('#temp').html(weatherData.t + '&deg;');
-          $('#kelembapan').html(weatherData.hu + '%');
-          $('#kecAngin').html(weatherData.ws + ' Km/jam');
-          $('#jarak').html(weatherData.vs_text);
+              $('#Daerah').text(location);
+              $('#suhu').html(weatherData.t + '&deg;');
+              $('#iconUtama').html('<img src="' + weatherData.image + '" alt="Cuaca" class="img-fluid">');
+              $('#temp').html(weatherData.t + '&deg;');
+              $('#kelembapan').html(weatherData.hu + '%');
+              $('#kecAngin').html(weatherData.ws + ' Km/jam');
+              $('#jarak').html(weatherData.vs_text);
+              var forecastContainer = $('#forecast-container');
+              forecastContainer.empty();
+              var today = new Date().toISOString().split('T')[0];
 
-          // memasukan data prediksi per 3 jam
-          var forecastContainer = $('#forecast-container');
-          forecastContainer.empty();
-
-          console.log(weatherData.local_datetime.split(' ')[0]);
-          var today = new Date().toISOString().split('T')[0];
-
-
-          for (let index = 0; index < response.data[0].cuaca[0].length; index++) {
-            if (response.data[0].cuaca[0][index].local_datetime.split(' ')[0] === today) {
-              // console.log(index);
-              var waktu = response.data[0].cuaca[0][index].local_datetime.split(' ')[1];
-              var forecastElement = `
+              data.data[0].cuaca[0].forEach(function(item) {
+                if (item.local_datetime.split(' ')[0] === today) {
+                  var waktu = item.local_datetime.split(' ')[1];
+                  var forecastElement = `
                 <div class="forecast-day text-center mx-2">
-                  <div>${waktu.split(':').slice(0,2).join(':')}</div>
+                  <div>${waktu.split(':').slice(0, 2).join(':')}</div>
                   <div class="icon text-warning">
-                    <img src="${response.data[0].cuaca[0][index].image}" alt="Cuaca" style="width: 24px;">
+                    <img src="${item.image}" alt="Cuaca" style="width: 24px;">
                   </div>
-                  <div>${response.data[0].cuaca[0][index].t}&deg;</div>
+                  <div>${item.t}&deg;</div>
                 </div>
                 <div class="border-start border-white" style="height: 80px; width: 2px; opacity: 0.5;"></div>
               `;
-              forecastContainer.append(forecastElement);
-            }
-          }
-          forecastContainer.find('.border-start:last').remove();
+                  forecastContainer.append(forecastElement);
+                }
+              });
+              forecastContainer.find('.border-start:last').remove();
 
+              var ramalanContainer = $('#ramalan');
+              ramalanContainer.empty();
 
-          // masukan data ke prediksi 3 hari 
+              for (let i = 1; i < data.data[0].cuaca.length; i++) {
+                var dataRamalan = data.data[0].cuaca[i][0];
+                var hari = new Date(dataRamalan.local_datetime.split(' ')[0]).toLocaleDateString('id-ID', {
+                  weekday: 'long'
+                });
 
-          var ramalanContainer = $('#ramalan');
-          ramalanContainer.empty();
-
-          console.log(response.data[0].cuaca.length);
-
-          for (let index = 1; index < response.data[0].cuaca.length; index++) {
-            // console.log(index);
-            var dataRamalan = response.data[0].cuaca[index][0];
-            var hari = new Date(dataRamalan.local_datetime.split(' ')[0]).toLocaleDateString('id-ID', {
-              weekday: 'long'
-            });
-
-            var ramalanHTML = `
+                var ramalanHTML = `
               <div class="row">
                 <div class="d-flex justify-content-center align-items-center gap-3">
                   <div>${hari}</div>
@@ -377,13 +396,53 @@
               </div>
               <div class="border-top border-white my-2" style="height: 2px;"></div>
             `;
-            ramalanContainer.append(ramalanHTML);
+                ramalanContainer.append(ramalanHTML);
+              }
+              ramalanContainer.find('.border-top:last').remove();
+            } else {
+              $('#hasil').text('Data cuaca tidak ditemukan.');
+            }
+          },
+          error: function() {
+            $('#hasil').text('Gagal mengambil data cuaca.');
+          },
+          complete: function() {
+            $("#spinner, #overlay").hide();
           }
-          ramalanContainer.find('.border-top:last').remove();
-        },
-        error: function(xhr, status, error) {
-          console.error("API Error: " + error);
+        });
+      }
+
+      fetchWeatherData(defaultKodeWilayah);
+
+      $('#cariKode').on('submit', function(e) {
+        e.preventDefault();
+
+        var wilayah = $('#wilayah').val().trim();
+
+        if (!wilayah) {
+          $('#hasil').text('Nama wilayah tidak boleh kosong.');
+          return;
         }
+
+        $.ajax({
+          url: '/api/cariKode',
+          type: 'POST',
+          data: {
+            wilayah: wilayah
+          },
+          dataType: 'json',
+          success: function(response) {
+            if (response.status === 'success') {
+              var kodeWilayah = response.message;
+              fetchWeatherData(kodeWilayah);
+            } else {
+              $('#hasil').text(response.message);
+            }
+          },
+          error: function() {
+            $('#hasil').text('Gagal mencari kode wilayah.');
+          }
+        });
       });
     });
   </script>

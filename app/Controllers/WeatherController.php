@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use CodeIgniter\HTTP\Client;
+use CodeIgniter\HTTP\ResponseInterface;
 
 class WeatherController extends BaseController
 {
@@ -11,16 +11,27 @@ class WeatherController extends BaseController
         $wilayahInput = strtolower(trim($this->request->getPost('wilayah')));
 
         if (empty($wilayahInput)) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Nama wilayah tidak boleh kosong.']);
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Nama wilayah tidak boleh kosong.'
+            ]);
         }
+
         $csvFile = ROOTPATH . 'public/fileKodeWilayah/base.csv';
 
         if (!file_exists($csvFile)) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'File CSV tidak ditemukan.']);
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'File CSV tidak ditemukan.'
+            ]);
         }
+
         $handle = fopen($csvFile, "r");
         if ($handle === false) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal membaca file CSV.']);
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Gagal membaca file CSV.'
+            ]);
         }
 
         $result = "Wilayah tidak ditemukan.";
@@ -34,6 +45,37 @@ class WeatherController extends BaseController
             }
         }
         fclose($handle);
-        return $this->response->setJSON(['status' => 'success', 'message' => $result]);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => $result
+        ]);
+    }
+    public function getWeatherByKodeWilayah($kodeWilayah)
+    {
+        $apiUrl = "https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=" . $kodeWilayah;
+
+        try {
+            $client = \Config\Services::curlrequest();
+            $response = $client->get($apiUrl);
+            $data = json_decode($response->getBody(), true);
+
+            if (isset($data['lokasi']) && isset($data['data'])) {
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'data' => $data
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'Data cuaca tidak ditemukan.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Gagal menghubungi API BMKG: ' . $e->getMessage()
+            ]);
+        }
     }
 }

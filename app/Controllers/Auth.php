@@ -30,6 +30,7 @@ class Auth extends BaseController
         // Cari pengguna berdasarkan username
         $user = $this->penggunaModel->find($username);
 
+        var_dump($user);
         if ($user) {
             // Verifikasi password
             if (password_verify($password, $user['password'])) {
@@ -118,6 +119,8 @@ class Auth extends BaseController
 
         $otp = rand(100000, 999999);
 
+        
+
         // Hapus OTP lama dan simpan OTP baru
         $this->otpModel->where('nomor', $tempUser['nomor'])->delete();
         $this->otpModel->insert([
@@ -138,7 +141,7 @@ class Auth extends BaseController
     {
         $data = ['target' => $nomor, 'message' => $message];
         $ch = curl_init('https://api.fonnte.com/send');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: E8QFC9dgUXvKnXzbjsYA"]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: bmvrY2R33YNkp3MKWwrM"]);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
