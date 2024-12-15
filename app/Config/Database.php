@@ -28,7 +28,7 @@ class Database extends Config
         'DSN'          => '',
         'hostname'     => 'localhost',
         'username'     => 'root',
-        'password'     => '',
+        'password'     => '@nse11',
         'database'     => 'project_restapi',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',

@@ -7,60 +7,87 @@
   <title>Weather Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="<?= base_url('css/HomeStyl.css') ?>">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <style>
-    #spinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      z-index: 9999;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #3f87a2, #2c3e50);
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    #overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 9998;
+    .container {
+      max-height: 100%;
     }
 
-    .forecast-day {
-      padding: 10px;
-      min-width: 80px;
-      text-align: center;
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    .forecast-wrapper {
-      overflow-x: auto;
-      white-space: nowrap;
+    .card-header {
+      background: rgba(255, 255, 255, 0.2);
+      border-bottom: none;
+      border-radius: 15px 15px 0 0;
+    }
+
+    #wilayah {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+    }
+
+    #search {
+      background-color: #00aaff;
+      border: none;
+      border-radius: 10px;
+    }
+
+    #search:hover {
+      background-color: #008ecc;
     }
 
     .forecast-day img {
-      max-width: 40px;
+      max-width: 50px;
+      margin: 5px 0;
+    }
+
+    .location {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .temperature {
+      font-size: 3rem;
+      font-weight: 500;
+    }
+
+    .icon-large {
+      font-size: 3rem;
+    }
+
+    .card .text-start {
+      font-size: 0.9rem;
     }
 
     #notificationBell {
-      z-index: 1061;
-      /* pastikan lebih tinggi dari modal atau overlay */
-    }
-
-    #notificationBell {
+      cursor: pointer;
       position: relative;
     }
 
     #notificationBell.active i {
       color: #ff5733;
-      /* Warna untuk menunjukkan notifikasi aktif */
-    }
-
-    #notificationBell i {
-      font-size: 1.5rem;
     }
 
     #notificationBell.active::after {
@@ -74,139 +101,94 @@
       border-radius: 50%;
     }
 
-    .modal-backdrop {
-      z-index: 1050;
-    }
-
-    .modal {
-      z-index: 1060;
-    }
-
+    .modal-header,
     .modal-body {
-      color: #4CAF50;
+      background: rgba(255, 255, 255, 0.1);
     }
 
-    .alert {
-      color: #fff;
-      /* Warna teks putih */
-      background-color: #28a745;
-      /* Latar belakang hijau */
+    .modal-footer .btn-primary {
+      background-color: #00aaff;
+      border: none;
+    }
+
+    footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.8rem;
     }
   </style>
-
 </head>
 
-
-
 <body>
-  <div id="overlay"></div>
-
-  <div id="spinner" class="spinner-border" role="status">
-    <span class="sr-only"></span>
-  </div>
-
-  <div class="my-2 px-4">
-    <div class="d-flex justify-content-between align-items-center">
-      <form action="" class="d-flex w-75 gap-3 " id="cariKode">
-        <input type="text" class="form-control shadow " placeholder="Cari Wilayah" id="wilayah" style="background-color: #3f87a2; color: white; opacity: 0.7; border-style: none; ">
-        <button class="btn btn-primary rounded bi bi-search shadow" type="submit" id="search"></button>
+  <div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <form action="" class="d-flex w-75 gap-3" id="cariKode">
+        <input type="text" class="form-control shadow" placeholder="Cari Wilayah" id="wilayah">
+        <button class="btn btn-primary shadow" type="submit" id="search">
+          <i class="bi bi-search"></i>
+        </button>
       </form>
-
       <div>
         <span>Selamat Datang, <?= session()->get('username'); ?>!</span>
-        <span class="mx-3" id="notificationBell" style="cursor: pointer;">
-          <i class="bi bi-bell" id="bellIcon"></i> <!-- Ikon lonceng -->
+        <span class="mx-3" id="notificationBell">
+          <i class="bi bi-bell"></i>
         </span>
-
-        <span><a href="/logout"><i class="bi bi-box-arrow-right"></i></a></span>
+        <span><a href="/logout" class="text-light"><i class="bi bi-box-arrow-right"></i></a></span>
       </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="notificationModalLabel">Konfirmasi Notifikasi</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="modalText" class="text-dark">
-            Apakah Anda ingin menerima notifikasi cuaca setiap hari melalui WhatsApp?
-            Centang untuk YA dan Kosongkan untuk TIDAK
-          </div>
-          <div class="mb-3">
-            <!-- Toggle Switch untuk Menyalakan/Mematikan Notifikasi -->
-            <label for="notificationToggle" class="form-label">Aktifkan Notifikasi</label>
-            <input type="checkbox" class="form-check-input" id="notificationToggle">
-            <small class="form-text text-muted">Centang / Kosongkan</small>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            <button type="button" class="btn btn-primary" id="confirmNotification">Konfirmasi</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-
-    <div class="row mt-3">
-      <div class="col-8">
-        <div class="row" style="margin-left: -100px;">
-          <div class="col d-flex justify-content-around">
-            <div class="row d-flex flex-column">
-              <h1 id="Daerah" class="location" style="font-size: 3rem;">Yogyakarta</h1>
+    <div class="row g-3">
+      <!-- Weather Overview -->
+      <div class="col-lg-8">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1 id="Daerah" class="location">Yogyakarta</h1>
               <div id="suhu" class="temperature">38&deg;</div>
             </div>
-            <div class="row">
-              <div id="iconUtama" class=" p-0 icon-large text-warning">&#9728;</div>
-            </div>
+            <div id="iconUtama" class="icon-large text-warning">&#9728;</div>
           </div>
-
         </div>
 
-        <div class="row">
-          <div class="card shadow">
-            <div class="card-body">
-              <div class="forecast-wrapper" style="overflow-x: auto; white-space: nowrap;">
-                <div id="forecast-container" class="forecast d-inline-flex"></div>
+        <!-- Forecast -->
+        <div class="card mt-3">
+          <div class="card-body">
+            <div class="forecast-wrapper d-flex gap-3">
+              <div id="forecast-container" class="forecast"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Details -->
+        <div class="card mt-3">
+          <div class="card-body">
+            <div class="row text-center text-light">
+              <div class="col-md-6 mb-3 d-flex align-items-center">
+                <i class="bi bi-thermometer" style="font-size: 1.5rem; margin-right: 8px;"></i>
+                <div class="text-start">
+                  <div>Suhu</div>
+                  <div id="temp" class="fw-bold" style="font-size: 1.5rem;">38&deg;</div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="row text-center my-4">
-          <div class="card shadow" style=" border-radius: 20px;">
-            <div class="card-body">
-              <div class="row text-white">
-                <div class="col-md-6 mb-3 d-flex align-items-center">
-                  <i class="bi bi-thermometer" style="font-size: 1.5rem; margin-right: 8px;"></i>
-                  <div class="text-start">
-                    <div>Suhu</div>
-                    <div id="temp" class="fw-bold" style="font-size: 1.5rem;">38&deg;</div>
-                  </div>
+              <div class="col-md-6 mb-3 d-flex align-items-center">
+                <i class="bi bi-wind" style="font-size: 1.5rem; margin-right: 8px;"></i>
+                <div class="text-start">
+                  <div>Angin</div>
+                  <div id="kecAngin" class="fw-bold" style="font-size: 1.5rem;">0.2 Km/jam</div>
                 </div>
-                <div class="col-md-6 mb-3 d-flex align-items-center">
-                  <i class="bi bi-wind" style="font-size: 1.5rem; margin-right: 8px;"></i>
-                  <div class="text-start">
-                    <div>Angin</div>
-                    <div id="kecAngin" class="fw-bold" style="font-size: 1.5rem;">0.2 Km/jam</div>
-                  </div>
+              </div>
+              <div class="col-md-6 mb-3 d-flex align-items-center">
+                <i class="bi bi-droplet" style="font-size: 1.5rem; margin-right: 8px;"></i>
+                <div class="text-start">
+                  <div>Kelembapan</div>
+                  <div id="kelembapan" class="fw-bold" style="font-size: 1.5rem;">10%</div>
                 </div>
-                <div class="col-md-6 mb-3 d-flex align-items-center">
-                  <i class="bi bi-droplet" style="font-size: 1.5rem; margin-right: 8px;"></i>
-                  <div class="text-start">
-                    <div>Kelembapan</div>
-                    <div id="kelembapan" class="fw-bold" style="font-size: 1.5rem;">10%</div>
-                  </div>
-                </div>
-                <div class="col-md-6 mb-3 d-flex align-items-center">
-                  <i class="bi bi-eye" style="font-size: 1.5rem; margin-right: 8px;"></i>
-                  <div class="text-start">
-                    <div>Jarak Pandang</div>
-                    <div id="jarak" class="fw-bold" style="font-size: 1.5rem;">5 M</div>
-                  </div>
+              </div>
+              <div class="col-md-6 mb-3 d-flex align-items-center">
+                <i class="bi bi-eye" style="font-size: 1.5rem; margin-right: 8px;"></i>
+                <div class="text-start">
+                  <div>Jarak Pandang</div>
+                  <div id="jarak" class="fw-bold" style="font-size: 1.5rem;">5 M</div>
                 </div>
               </div>
             </div>
@@ -214,26 +196,31 @@
         </div>
       </div>
 
-
-      <div class="col-4">
-        <div class="card shadow">
-          <div class="card-header text-center text-light">
-            <h5>Ramalan cuaca 3 hari ke depan</h5>
+      <!-- 3-Day Forecast -->
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header text-center">
+            <h5>Ramalan Cuaca 3 Hari</h5>
           </div>
-          <div class="card-body text-light">
-            <div id="ramalan" class="col d-flex flex-column gap-3 justify-content-around">
-            </div>
+          <div class="card-body">
+            <div id="ramalan" class="d-flex flex-column gap-3"></div>
           </div>
         </div>
       </div>
-
     </div>
 
-
-    <div class="text-center mt-3">
+    <footer>
       <small>Sumber Data diperoleh dari Badan Meteorologi, Klimatologi dan Geofisika</small>
-    </div>
+    </footer>
   </div>
+</body>
+
+
+
+
+<!-- Ubah tampilannya -->
+
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css"></script>
