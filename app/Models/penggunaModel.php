@@ -4,7 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PenggunaModel extends Model
+class penggunaModel extends Model
 {
     protected $table = 'pengguna';
     protected $primaryKey = 'username';

@@ -299,7 +299,8 @@
             }
 
             // Ambil nomor dari session dan kirim notifikasi
-            var nomorPengguna = '<?= session()->get('nomor'); ?>'; // Mengambil nomor pengguna dari session PHP
+            var nomorPengguna = '<?= session()->get('nomor'); ?>';
+            console.log(nomorPengguna); // Mengambil nomor pengguna dari session PHP
             sendWeatherNotification(nomorPengguna, message); // Kirim pesan ke nomor pengguna
           },
           error: function(xhr, status, error) {

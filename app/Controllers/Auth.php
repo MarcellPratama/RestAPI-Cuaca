@@ -88,6 +88,9 @@ class Auth extends BaseController
         $otp = $this->request->getPost('otp');
         $tempUser = session()->get('temp_user');
 
+        echo $tempUser['nomor'];
+        var_dump($tempUser['nomor']);
+
         $otpData = $this->otpModel->where([
             'nomor' => $tempUser['nomor'],
             'otp'   => $otp,

@@ -14,7 +14,7 @@ $routes->post('verify-otp', 'Auth::verifyOtp');
 $routes->get('resend-otp', 'Auth::resendOtp');
 $routes->get('pendaftaran', 'Auth::viewPendaftaran');
 $routes->get('verifikasi', 'Auth::viewVerifikasi');
-$routes->get('/', 'Auth::Login');
+$routes->get('/', 'Auth::viewLogin');
 $routes->get('/login', 'Auth::Login');
 $routes->get('/pendaftaran', 'Auth::Register');
 $routes->get('/home', 'HomeController::index');

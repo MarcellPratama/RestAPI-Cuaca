@@ -74,7 +74,7 @@ class WeatherController extends BaseController
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'status' => 'error',
-                'message' => 'Gagal menghubungi API BMKG: ' . $e->getMessage()
+                'message' => 'Gagal Connect API BMKG: ' . $e->getMessage()
             ]);
         }
     }
