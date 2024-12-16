@@ -8,77 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">  
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">  
     <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">  
-    <title>Login</title>  
-    <style>  
-        body {  
-            background-color: #f8f9fa; /* Change this to your desired background color */  
-            height: 100vh;  
-            display: flex;  
-            justify-content: center;  
-            align-items: center;  
-        }  
-
-        .container {  
-            background: white;  
-            border-radius: 10px;  
-            padding: 30px;  
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  
-            max-width: 400px;  
-            width: 100%;  
-        }  
-
-        .text-header {  
-            text-align: center;  
-            margin-bottom: 20px;  
-            font-size: 24px;  
-            color: #333;  
-        }  
-
-        .input-group-text {  
-            background-color: #f5f5f5;  
-            border: 1px solid #ced4da;  
-        }  
-
-        .form-control {  
-            border: 1px solid #ced4da;  
-            border-radius: 5px;  
-            transition: border-color 0.3s;  
-        }  
-
-        .form-control:focus {  
-            border-color: #007bff;  
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);  
-        }  
-
-        .btn-primary {  
-            width: 100%;  
-            margin-top: 10px;  
-            transition: background-color 0.3s, transform 0.2s;  
-        }  
-
-        .btn-primary:hover {  
-            background-color: #0056b3;  
-            transform: translateY(-2px);  
-        }  
-
-        .span-text {  
-            color: #666;  
-        }  
-
-        .register-link {  
-            color: #007bff;  
-            text-decoration: none;  
-        }  
-
-        .register-link:hover {  
-            text-decoration: underline;  
-        }  
-
-        .error-message {  
-            color: red;  
-            text-align: center;  
-        }  
-    </style>  
+    <title>Login</title>    
 </head>  
 
 <body>  

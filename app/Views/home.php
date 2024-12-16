@@ -549,8 +549,7 @@
             // Simpan kode wilayah ke session
             sessionStorage.setItem('kodeWilayah', kodeWilayahBaru);
             console.log('Kode wilayah disimpan ke session:', kodeWilayahBaru);
-
-            // Ambil data cuaca untuk kode wilayah baru
+            
             fetchWeatherData(kodeWilayahBaru);
           } else {
             $('#hasil').text(response.message);
