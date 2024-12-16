@@ -6,6 +6,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class WeatherController extends BaseController
 {
+    
     public function cariKodeWilayah()
     {
         $wilayahInput = strtolower(trim($this->request->getPost('wilayah')));

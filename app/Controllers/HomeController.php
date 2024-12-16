@@ -6,6 +6,8 @@ class HomeController extends BaseController
 {
     public function index(): string
     {
-        return view('home');
+        $kodeWilayah = session()->get('kode_wilayah');
+
+        return view('home', ['kodeWilayah' => $kodeWilayah]);
     }
 }

@@ -70,11 +70,11 @@ class Auth extends BaseController
             'otp'   => $otp,
             'waktu' => time(),
         ]);
-        
+
         // Kirim OTP
         $message = "*$otp* adalah kode OTP Anda. Demi keamanan jangan bagikan kode ini.";
         $this->sendOtp($data['nomor'], $message);
-        
+
         // Simpan data sementara untuk proses verifikasi
         session()->set('temp_user', [
             'username' => $data['username'],
@@ -90,13 +90,13 @@ class Auth extends BaseController
         $otp = $this->request->getPost('otp');
         $tempUser = session()->get('temp_user');
 
-        
+
         $otpData = $this->otpModel->where([
             'nomor' => $tempUser['nomor'],
             'otp'   => $otp,
-            ])->first();
-            
-            // dd($tempUser);
+        ])->first();
+
+        // dd($tempUser);
         if ($otpData && (time() - $otpData['waktu']) <= 30) {
             // Simpan pengguna
             $this->penggunaModel->insert($tempUser);

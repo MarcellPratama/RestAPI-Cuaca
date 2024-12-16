@@ -73,6 +73,36 @@
       margin: 5px 0;
     }
 
+    #forecast-container {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    #forecast-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .forecast-wrapper {
+      overflow-x: auto;
+    }
+
+    .forecast-wrapper::-webkit-scrollbar {
+      height: 3px;
+    }
+
+    .forecast-wrapper::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 10px;
+    }
+
+    .forecast-wrapper::-webkit-scrollbar-thumb:hover {
+      background-color: #555;
+    }
+
+
     .location {
       font-size: 3rem;
       font-weight: 700;
@@ -184,17 +214,19 @@
   </style>
 </head>
 
+
+
 <body>
   <div class="container py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <form action="" class="d-flex w-75 gap-3" id="cariKode">
+      <form action="" class="d-flex w-50 gap-3" id="cariKode">
         <input type="text" class="form-control shadow" placeholder="Cari Wilayah" id="wilayah">
         <button class="btn btn-primary shadow" type="submit" id="search">
           <i class="bi bi-search"></i>
         </button>
       </form>
       <!-- Updated User Section -->
-      <div class="user-section">
+      <div class="user-section ">
         <i class="bi bi-person-circle"></i>
         <div class="user-text">
           <span class="welcome">Selamat Datang!</span>
@@ -228,7 +260,7 @@
         <div class="card mt-3 flex-grow-1">
           <div class="card-body">
             <div class="forecast-wrapper d-flex gap-3">
-              <div id="forecast-container" class="forecast"></div>
+              <div id="forecast-container" class="forecast d-flex gap-5"></div>
             </div>
           </div>
         </div>
@@ -303,7 +335,7 @@
 
 <script>
   $(document).ready(function() {
-    var kodeWilayah = '34.04.07.2002';
+    var kodeWilayah = "34.04.07.2002";
     var isNotificationActive = localStorage.getItem('notificationActive') === 'true'; // Cek status dari localStorage
     // Set status awal lonceng berdasarkan localStorage
     if (isNotificationActive) {
@@ -427,6 +459,8 @@
             forecastContainer.empty();
             var today = new Date().toISOString().split('T')[0];
 
+            console.log(data);
+
             data.data[0].cuaca[0].forEach(function(item) {
               if (item.local_datetime.split(' ')[0] === today) {
                 var waktu = item.local_datetime.split(' ')[1];
@@ -485,9 +519,13 @@
     fetchWeatherData(defaultKodeWilayah);
 
     $('#cariKode').on('submit', function(e) {
+
+
       e.preventDefault();
 
       var wilayah = $('#wilayah').val().trim();
+
+      console.log(wilayah)
 
       if (!wilayah) {
         $('#hasil').text('Nama wilayah tidak boleh kosong.');
