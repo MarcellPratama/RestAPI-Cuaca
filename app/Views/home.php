@@ -335,28 +335,21 @@
 
 <script>
   $(document).ready(function() {
-    // Default kode wilayah jika tidak ada di session
     var defaultKodeWilayah = '34.04.07.2002';
     var kodeWilayah = sessionStorage.getItem('kodeWilayah') || defaultKodeWilayah;
 
-    var isNotificationActive = localStorage.getItem('notificationActive') === 'true'; // Cek status dari localStorage
+    var isNotificationActive = localStorage.getItem('notificationActive') === 'true'; 
 
-    // Set status awal lonceng berdasarkan localStorage
     if (isNotificationActive) {
       $('#notificationBell').addClass('active');
     }
 
-    // Event listener untuk klik pada ikon lonceng
     $('#notificationBell').click(function() {
-      // Toggle status notifikasi
       isNotificationActive = !isNotificationActive;
-
-      // Simpan status ke localStorage
       localStorage.setItem('notificationActive', isNotificationActive);
 
-      $(this).toggleClass('active'); // Ubah tampilan lonceng
+      $(this).toggleClass('active');
 
-      // Tampilkan pesan di konsol
       if (isNotificationActive) {
         console.log("Notifikasi diaktifkan.");
         kirimCuaca();
@@ -366,8 +359,7 @@
     });
 
     function kirimCuaca() {
-      // Baca kodeWilayah terbaru dari sessionStorage
-      var kodeWilayah = sessionStorage.getItem('kodeWilayah') || '34.04.07.2002'; // Gunakan default jika tidak ada
+      var kodeWilayah = sessionStorage.getItem('kodeWilayah') || '34.04.07.2002';
       console.log('Kode wilayah yang digunakan untuk notifikasi:', kodeWilayah);
 
       $.ajax({
