@@ -6,7 +6,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class WeatherController extends BaseController
 {
-    
+
     public function cariKodeWilayah()
     {
         $wilayahInput = strtolower(trim($this->request->getPost('wilayah')));
@@ -42,6 +42,10 @@ class WeatherController extends BaseController
 
             if ($namaWilayah === $wilayahInput) {
                 $result = $kodeWilayah;
+
+                // Simpan kode wilayah ke session
+                session()->set('kode_wilayah', $kodeWilayah);
+
                 break;
             }
         }

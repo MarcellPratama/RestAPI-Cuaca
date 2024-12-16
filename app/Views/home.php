@@ -335,8 +335,12 @@
 
 <script>
   $(document).ready(function() {
-    var kodeWilayah = "34.04.07.2002";
+    // Default kode wilayah jika tidak ada di session
+    var defaultKodeWilayah = '34.04.07.2002';
+    var kodeWilayah = sessionStorage.getItem('kodeWilayah') || defaultKodeWilayah;
+
     var isNotificationActive = localStorage.getItem('notificationActive') === 'true'; // Cek status dari localStorage
+
     // Set status awal lonceng berdasarkan localStorage
     if (isNotificationActive) {
       $('#notificationBell').addClass('active');
@@ -352,8 +356,6 @@
 
       $(this).toggleClass('active'); // Ubah tampilan lonceng
 
-
-
       // Tampilkan pesan di konsol
       if (isNotificationActive) {
         console.log("Notifikasi diaktifkan.");
@@ -364,6 +366,10 @@
     });
 
     function kirimCuaca() {
+      // Baca kodeWilayah terbaru dari sessionStorage
+      var kodeWilayah = sessionStorage.getItem('kodeWilayah') || '34.04.07.2002'; // Gunakan default jika tidak ada
+      console.log('Kode wilayah yang digunakan untuk notifikasi:', kodeWilayah);
+
       $.ajax({
         url: 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=' + kodeWilayah,
         type: 'GET',
@@ -372,7 +378,7 @@
           var location = response.lokasi.desa;
           var weatherData = response.data[0].cuaca[0][0];
 
-          // format pesan cuaca
+          // Format pesan cuaca
           var message = `Cuaca Hari Ini di ${location}:\n`;
           message += `Suhu: ${weatherData.t}°\n`;
           message += `Kelembapan: ${weatherData.hu}%\n`;
@@ -401,14 +407,15 @@
 
           // Ambil nomor dari session dan kirim notifikasi
           var nomorPengguna = '<?= session()->get('nomor'); ?>';
-          console.log(nomorPengguna); // Mengambil nomor pengguna dari session PHP
-          sendWeatherNotification(nomorPengguna, message); // Kirim pesan ke nomor pengguna
+          console.log('Nomor pengguna:', nomorPengguna);
+          sendWeatherNotification(nomorPengguna, message);
         },
         error: function(xhr, status, error) {
           console.error("API Error: " + error);
         }
       });
     }
+
 
     function sendWeatherNotification(nomor, message) {
       $.ajax({
@@ -430,11 +437,8 @@
         }
       });
     }
-  });
 
-  $(document).ready(function() {
-    var defaultKodeWilayah = '34.04.07.2002';
-
+    // Fungsi untuk mengambil data cuaca
     function fetchWeatherData(kodeWilayah) {
       $("#spinner, #overlay").show();
 
@@ -455,11 +459,10 @@
             $('#kelembapan').html(weatherData.hu + '%');
             $('#kecAngin').html(weatherData.ws + ' Km/jam');
             $('#jarak').html(weatherData.vs_text);
+
             var forecastContainer = $('#forecast-container');
             forecastContainer.empty();
             var today = new Date().toISOString().split('T')[0];
-
-            console.log(data);
 
             data.data[0].cuaca[0].forEach(function(item) {
               if (item.local_datetime.split(' ')[0] === today) {
@@ -516,21 +519,21 @@
       });
     }
 
-    fetchWeatherData(defaultKodeWilayah);
+    // Ambil data cuaca untuk kode wilayah yang ada di session atau default
+    fetchWeatherData(kodeWilayah);
 
+    // Event listener untuk pencarian kode wilayah
     $('#cariKode').on('submit', function(e) {
-
-
       e.preventDefault();
 
       var wilayah = $('#wilayah').val().trim();
-
-      console.log(wilayah)
 
       if (!wilayah) {
         $('#hasil').text('Nama wilayah tidak boleh kosong.');
         return;
       }
+
+      sessionStorage.removeItem('kodeWilayah');
 
       $.ajax({
         url: '/api/cariKode',
@@ -541,8 +544,14 @@
         dataType: 'json',
         success: function(response) {
           if (response.status === 'success') {
-            var kodeWilayah = response.message;
-            fetchWeatherData(kodeWilayah);
+            var kodeWilayahBaru = response.message;
+
+            // Simpan kode wilayah ke session
+            sessionStorage.setItem('kodeWilayah', kodeWilayahBaru);
+            console.log('Kode wilayah disimpan ke session:', kodeWilayahBaru);
+
+            // Ambil data cuaca untuk kode wilayah baru
+            fetchWeatherData(kodeWilayahBaru);
           } else {
             $('#hasil').text(response.message);
           }
@@ -554,6 +563,8 @@
     });
   });
 </script>
+
+
 
 
 </body>
