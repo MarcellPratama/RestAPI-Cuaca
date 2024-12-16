@@ -41,8 +41,10 @@ class Auth extends BaseController
                 session()->set('username', $user['username']);
                 session()->set('nomor', $user['nomor']);
 
+                $kodeWilayah = session()->get('kode_wilayah');
+
                 // Redirect ke dashboard
-                return redirect()->to('/home');
+                return view('home', ['kodeWilayah' => $kodeWilayah]);
             } else {
                 // Password salah
                 return redirect()->back()->with('error', 'Password salah!');
